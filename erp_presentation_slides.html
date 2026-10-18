@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Development Plan: ERP Xây Dựng & Sản Xuất</title>
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           THEME & DESIGN TOKENS (HIGH-END ENTERPRISE)
+           =========================================== */
+        :root {
+            --bg-primary: #070d19;
+            --bg-secondary: #0d172a;
+            --bg-card: rgba(18, 29, 51, 0.75);
+            --bg-card-hover: rgba(28, 44, 76, 0.9);
+            --border-card: rgba(56, 189, 248, 0.15);
+            --border-highlight: rgba(56, 189, 248, 0.5);
+
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            --cyan: #00f2fe;
+            --cyan-glow: rgba(0, 242, 254, 0.35);
+            --teal: #4facfe;
+            --blue: #2563eb;
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --purple: #8b5cf6;
+
+            --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            /* Responsive typography via clamp */
+            --title-size: clamp(1.8rem, 4vw, 3.2rem);
+            --subtitle-size: clamp(0.95rem, 1.8vw, 1.4rem);
+            --h2-size: clamp(1.3rem, 2.8vw, 2.2rem);
+            --h3-size: clamp(1rem, 1.6vw, 1.3rem);
+            --body-size: clamp(0.75rem, 1.1vw, 0.95rem);
+            --small-size: clamp(0.65rem, 0.9vw, 0.8rem);
+
+            --slide-padding: clamp(1rem, 3.2vw, 3.5rem);
+            --content-gap: clamp(0.6rem, 1.5vw, 1.5rem);
+            --card-padding: clamp(0.7rem, 1.4vw, 1.4rem);
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration: 0.5s;
+        }
+
+        /* ===========================================
+           VIEWPORT FITTING MANDATORY RULES
+           =========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 10% 80%, rgba(0, 242, 254, 0.05) 0%, transparent 45%),
+                        var(--bg-primary);
+            padding: var(--slide-padding);
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            max-width: 1350px;
+            margin: 0 auto;
+            width: 100%;
+            z-index: 2;
+        }
+
+        /* Ambient background glow */
+        .ambient-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            opacity: 0.25;
+            z-index: 1;
+        }
+        .glow-1 { top: -100px; right: -50px; width: 400px; height: 400px; background: var(--blue); }
+        .glow-2 { bottom: -100px; left: -50px; width: 400px; height: 400px; background: var(--cyan); }
+
+        /* ===========================================
+           TOP CONTROLS & NAVIGATION
+           =========================================== */
+        .top-nav {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1000;
+            background: rgba(13, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 0.4rem 0.8rem;
+            border-radius: 9999px;
+            border: 1px solid var(--border-card);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .slide-counter {
+            font-size: var(--small-size);
+            font-weight: 600;
+            color: var(--cyan);
+            font-family: var(--font-mono);
+            padding: 0 0.5rem;
+        }
+
+        .btn-nav {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-primary);
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .btn-nav:hover {
+            background: var(--cyan);
+            color: #070d19;
+            border-color: var(--cyan);
+            box-shadow: 0 0 15px var(--cyan-glow);
+        }
+
+        .progress-bar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 1001;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--teal), var(--cyan));
+            transition: width 0.3s ease;
+        }
+
+        /* Keyboard hint footer */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 0.8rem;
+            left: 1.5rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            z-index: 1000;
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+        .keyboard-hint kbd {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            padding: 0.1rem 0.35rem;
+            font-family: var(--font-mono);
+            color: var(--cyan);
+        }
+
+        /* ===========================================
+           SLIDE CONTENT COMPONENTS
+           =========================================== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--cyan);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            margin-bottom: 0.75rem;
+            width: fit-content;
+        }
+        .badge.amber {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--amber);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        .badge.emerald {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--emerald);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        .badge.purple {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--purple);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .slide-header {
+            margin-bottom: clamp(0.6rem, 1.8vw, 1.4rem);
+        }
+        .slide-header h2 {
+            font-size: var(--h2-size);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 40%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
+        }
+        .slide-header p {
+            font-size: var(--subtitle-size);
+            color: var(--text-secondary);
+        }
+
+        /* Cards & Grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--content-gap);
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--content-gap);
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(0.5rem, 1.2vw, 1rem);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: var(--card-padding);
+            backdrop-filter: blur(16px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            border-color: var(--border-highlight);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.08);
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card h3 {
+            font-size: var(--h3-size);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card p, .card li {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .card ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .card ul li {
+            position: relative;
+            padding-left: 1.2rem;
+        }
+        .card ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--cyan);
+            font-weight: bold;
+        }
+
+        /* Highlighting Pills */
+        .pill {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 4px;
+            padding: 0.15rem 0.4rem;
+            font-family: var(--font-mono);
+            font-size: 0.8em;
+            color: var(--cyan);
+        }
+
+        /* Timeline & Phases */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 1rem;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            padding: 0.7rem 1.2rem;
+            border-radius: 10px;
+        }
+        .timeline-badge {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--cyan);
+            background: rgba(0, 242, 254, 0.1);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        /* Architecture Flow Diagram */
+        .arch-box {
+            background: rgba(13, 23, 42, 0.8);
+            border: 1px dashed var(--border-highlight);
+            border-radius: 10px;
+            padding: 0.8rem;
+            text-align: center;
+        }
+        .arch-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--cyan);
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+        .arch-content {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* ===========================================
+           ANIMATIONS (REVEAL)
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity var(--duration) var(--ease-out-expo),
+                        transform var(--duration) var(--ease-out-expo);
+        }
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal:nth-child(1) { transition-delay: 0.05s; }
+        .reveal:nth-child(2) { transition-delay: 0.15s; }
+        .reveal:nth-child(3) { transition-delay: 0.25s; }
+        .reveal:nth-child(4) { transition-delay: 0.35s; }
+
+        /* ===========================================
+           PRINT STYLES FOR HIGH-QUALITY PDF
+           =========================================== */
+        @media print {
+            body {
+                background: #070d19 !important;
+                color: #ffffff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .slide {
+                page-break-after: always !important;
+                page-break-inside: avoid !important;
+                height: 100vh !important;
+                width: 100vw !important;
+                display: flex !important;
+                padding: 2.5rem !important;
+            }
+            .top-nav, .keyboard-hint, .progress-bar-container, .ambient-glow {
+                display: none !important;
+            }
+            .reveal {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Top Action Navigation -->
+    <nav class="top-nav">
+        <span class="slide-counter" id="slideCounter">01 / 11</span>
+        <button class="btn-nav" id="prevBtn" title="Slide trước (←)">❮ Trước</button>
+        <button class="btn-nav" id="nextBtn" title="Slide sau (→)">Sau ❯</button>
+        <button class="btn-nav" onclick="window.print()" title="In ra PDF hoặc bấm lưu">🖨️ In / Lưu PDF</button>
+        <button class="btn-nav" id="fullscreenBtn" title="Chế độ toàn màn hình (F)">⛶ Toàn màn hình</button>
+    </nav>
+
+    <!-- Keyboard Hints -->
+    <div class="keyboard-hint">
+        <span><kbd>←</kbd> <kbd>→</kbd> hoặc <kbd>Space</kbd> Chuyển slide</span>
+        <span><kbd>F</kbd> Toàn màn hình</span>
+        <span><kbd>P</kbd> In PDF</span>
+    </div>
+
+    <!-- ========================================================
+         SLIDE 1: TITLE SLIDE
+         ======================================================== -->
+    <section class="slide" id="slide-1">
+        <div class="ambient-glow glow-1"></div>
+        <div class="ambient-glow glow-2"></div>
+        <div class="slide-content" style="text-align: center; align-items: center;">
+            <div class="badge reveal">Enterprise Architecture & Execution Plan</div>
+            <h1 class="reveal" style="font-size: var(--title-size); font-weight: 800; line-height: 1.15; margin-bottom: 1rem; max-width: 1100px;">
+                KẾ HOẠCH PHÁT TRIỂN HỆ THỐNG ERP<br>
+                <span style="background: linear-gradient(90deg, var(--teal), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    NGÀNH XÂY DỰNG & SẢN XUẤT NHÀ MÁY
+                </span>
+            </h1>
+            <p class="reveal" style="font-size: var(--subtitle-size); color: var(--text-secondary); max-width: 850px; margin-bottom: 2rem;">
+                Kiến trúc Modular Monolith trên nền <strong>.NET 8/9 & React.js</strong>, điều hành sản xuất khép kín, quản trị dự án công trình WBS, và chiến lược dẫn dắt đội ngũ kỹ sư 3–5 người.
+            </p>
+            <div class="reveal" style="display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;">
+                <div style="background: var(--bg-card); border: 1px solid var(--border-card); padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.85rem;">
+                    👤 <strong>Vai trò:</strong> Tech Lead / Solution Architect
+                </div>
+                <div style="background: var(--bg-card); border: 1px solid var(--border-card); padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.85rem;">
+                    👥 <strong>Đội ngũ:</strong> 1 Tech Lead (50% code) + 3–5 Engineers
+                </div>
+                <div style="background: var(--bg-card); border: 1px solid var(--border-card); padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.85rem;">
+                    ⏱️ <strong>Lộ trình:</strong> 0 -> 1 trong 8–9 tháng
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SLIDE 2: BỐI CẢNH & THÁCH THỨC NGHIỆP VỤ
+         ======================================================== -->
+    <section class="slide" id="slide-2">
+        <div class="slide-content">
+            <div class="slide-header reveal">
+                <div class="badge amber">Domain Challenges</div>
+                <h2>Bối Cảnh & Thách Thức Nghiệp Vụ Cốt Lõi</h2>
+                <p>Hệ thống tích hợp hai phân hệ phức tạp có đặc thù vận hành hoàn toàn trái ngược nhau</p>
+            </div>
+            <div class="grid-2">
+                <div class="card reveal">
+                    <h3 style="color: var(--cyan);">🏗️ Phân Hệ Xây Dựng & Công Trường</h3>
+                    <ul>
+                        <li><strong>Phi tập trung theo công trình:</strong> Dữ liệu phát sinh phân tán tại các ban chỉ huy công trường khắp các tỉnh.</li>
+                        <li><strong>Dự toán BOQ & Tiến độ WBS:</strong> Cây phân rã công việc nhiều cấp, quản lý đường găng tiến độ (Gantt Chart).</li>
+                        <li><strong>Thầu phụ & Hao hụt vật tư:</strong> Kiểm soát chặt chẽ vật tư cấp phát vs định mức dự toán; nghiệm thu thanh quyết toán giai đoạn.</li>
+                        <li><strong>Nhật ký hiện trường:</strong> Đòi hỏi ứng dụng mobile gọn nhẹ (PWA), ghi nhận thời tiết, hình ảnh thi công có định vị GPS.</li>
+                    </ul>
+                </div>
+                <div class="card reveal">
+                    <h3 style="color: var(--amber);">🏭 Phân Hệ Sản Xuất & Nhà Máy</h3>
+                    <ul>
+                        <li><strong>Định mức BOM & Routing:</strong> Cấu trúc sản phẩm nhiều tầng chi tiết; quy trình công nghệ qua nhiều chuyền máy móc.</li>
+                        <li><strong>Hoạch định MRP/MPS:</strong> Tính toán chính xác thời điểm và số lượng nguyên vật liệu cần mua để tránh dừng chuyền.</li>
+                        <li><strong>Lệnh sản xuất (Work Order):</strong> Giao việc xuống từng ca/kíp; kiểm soát tiến độ sản xuất theo thời gian thực (Real-time).</li>
+                        <li><strong>Kiểm soát chất lượng (QC):</strong> 3 chốt chặn bắt buộc IQC (Đầu vào) - PQC (Tại chuyền) - FQC (Thành phẩm nhập kho).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SLIDE 3: TỔNG QUAN KIẾN TRÚC MODULAR MONOLITH
+         ======================================================== -->
+    <section class="slide" id="slide-3">
+        <div class="slide-content">
+            <div class="slide-header reveal">
+                <div class="badge">Architecture Strategy</div>
+                <h2>Chiến Lược Kiến Trúc: Modular Monolith</h2>
+                <p>Tại sao KHÔNG vội vã chọn Microservices ngay từ ngày đầu với team 3–5 kỹ sư?</p>
+            </div>
+            <div class="grid-3" style="margin-bottom: 1rem;">
+                <div class="card reveal">
+                    <h3>⚡ Tốc Độ Bàn Giao Vượt Trội</h3>
+                    <p>Loại bỏ hoàn toàn chi phí phát sinh của Microservices: Không distributed tracing phức tạp, không rủi ro network latency, không bế tắc distributed transactions (Saga/2PC).</p>
+                </div>
+                <div class="card reveal">
+                    <h3>🧩 Bounded Contexts Độc Lập</h3>
+                    <p>Chia module rành mạch theo nguyên lý DDD: <code>Construction</code>, <code>Manufacturing</code>, <code>Inventory</code>, <code>Workflow</code>. Mỗi module sở hữu schema dữ liệu độc lập.</p>
+                </div>
+                <div class="card reveal">
+                    <h3>🚀 Sẵn Sàng Tách Microservices</h3>
+                    <p>Giao tiếp liên module thông qua In-Memory Bus (MediatR) hoặc Event Broker (MassTransit/RabbitMQ). Khi một module cần scale riêng (như IoT/QC), ta bóc tách trong 1 Sprint.</p>
+                </div>
+            </div>
+            <div class="card reveal" style="background: rgba(13, 23, 42, 0.95); border: 1px solid var(--border-highlight); padding: 0.8rem 1.2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                    <div><span class="pill">Frontend</span> React 18/19 + TypeScript + Mantine UI + TanStack</div>
+                    <span style="color: var(--cyan);">➔ YARP / Ingress ➔</span>
+                    <div><span class="pill">Backend Core</span> .NET 8/9 Modular Monolith (Clean Arch + DDD)</div>
+                    <span style="color: var(--cyan);">➔ Storage ➔</span>
+                    <div><span class="pill">Data</span> PostgreSQL + Redis + RabbitMQ + S3 MinIO</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SLIDE 4: PHÂN BỔ 50% THỜI GIAN CODE CỦA TECH LEAD
+         ======================================================== -->
+    <section class="slide" id="slide-4">
+        <div class="slide-content">
+            <div class="slide-header reveal">
+                <div class="badge emerald">Leadership & Hands-on Code</div>
+                <h2>Chiến Lược Phân Bổ 50% Coding Của Tech Lead</h2>
+                <p>Giữ chắc "xương sống" hệ thống, ủy quyền hiệu quả các phần việc thứ cấp</p>
+            </div>
+            <div class="grid-2">
+                <div class="card reveal" style="border-left: 4px solid var(--cyan);">
+                    <h3 style="color: var(--cyan);">💻 Tech Lead Trực Tiếp Code (50% Thời Gian)</h3>
+                    <ul>
+                        <li><strong>Base Framework & Skeleton:</strong> Solution Template chuẩn Clean Architecture, Result Pattern, Global Exception, Auditing Interceptor.</li>
+                        <li><strong>Dynamic Workflow Engine:</strong> State Machine phê duyệt đa cấp nhiều điều kiện (hạn mức ngân sách, phòng ban, song song/tuần tự).</li>
+                        <li><strong>IAM & Row-Level Security:</strong> Phân quyền ma trận RBAC/ABAC sâu đến từng dự án/công trường (Data Scoping).</li>
+                        <li><strong>Asynchronous & Event Bus:</strong> Outbox Pattern, RabbitMQ Consumers, Distributed Locks (RedLock) chống xuất âm kho.</li>
+                        <li><strong>CI/CD & Kubernetes Manifests:</strong> Pipeline tự động hóa, Docker multi-stage, cấu hình Ingress & Helm chart.</li>
+                    </ul>
+                </div>
+                <div class="card reveal" style="border-left: 4px solid var(--purple);">
+                    <h3 style="color: var(--purple);">🤝 Ủy Quyền Cho Team 3–5 Engineers</h3>
+                    <ul>
+                        <li><strong>Backend Developers (1 Senior + 1 Mid):</strong>
+                            <br>• Triển khai các API CRUD chuẩn hóa (Đối tác, Vật tư, Phòng ban).
+                            <br>• Viết Business Logic cho các use-case (Đề xuất vật tư, Nhập kho).
+                            <br>• Viết Unit Test & Integration Test đạt độ phủ coverage > 70%.
+                        </li>
+                        <li><strong>Frontend Developers (1 Senior + 1 Mid):</strong>
+                            <br>• Phát triển các màn hình nhập liệu, form chi tiết theo wireframe.
+                            <br>• Xây dựng Interactive Gantt Chart & Bảng dữ liệu ảo hóa nghìn dòng.
+                            <br>• Tích hợp API và hoàn thiện trải nghiệm UX/Mobile PWA.
+                        </li>
+                        <li><strong>50% thời gian còn lại của Tech Lead:</strong> Review PR (20%), Lập kế hoạch Sprint/BA (20%), Mentoring & Ops (10%).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SLIDE 5: LỘ TRÌNH 5 GIAI ĐOẠN (ROADMAP 0 -> 1)
+         ======================================================== -->
+    <section class="slide" id="slide-5">
+        <div class="slide-content">
+            <div class="slide-header reveal">
+                <div class="badge">Implementation Roadmap</div>
+                <h2>Lộ Trình Triển Khai 5 Giai Đoạn (8–9 Tháng)</h2>
+                <p>Tiến trình từng bước vững chắc, có sản phẩm bàn giao chạy được sau mỗi Sprint</p>
+            </div>
+            <div class="timeline reveal">
+                <div class="timeline-item">
+                    <div class="timeline-badge">PHASE 0 (1 Th.)</div>
+                    <div><strong>Foundation & CI/CD Pipeline:</strong> Khởi tạo Clean Architecture, Linter/Husky, Setup cụm K8s Dev/Staging, Quy chuẩn DoD & DoR.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge">PHASE 1 (2 Th.)</div>
+                    <div><strong>IAM & Dynamic Workflow:</strong> Quản lý người dùng, phân quyền ma trận 3 lớp, Master Data dùng chung và Động cơ phê duyệt đa cấp.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge" style="color: var(--amber);">PHASE 2 (2 Th.)</div>
+                    <div><strong>Quản Lý Dự Án & Công Trình:</strong> Dự toán BOQ, Cây công việc WBS & Gantt Chart tương tác, Nhật ký công trường PWA, Nghiệm thu A-B.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge" style="color: var(--emerald);">PHASE 3 (2 Th.)</div>
+                    <div><strong>Sản Xuất & Nhà Máy Khép Kín:</strong> Định mức BOM nhiều cấp, Routing công nghệ, Hoạch định MRP, Lệnh sản xuất, Kiểm soát chất lượng (QC).</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge" style="color: var(--purple);">PHASE 4 (1.5 Th.)</div>
+                    <div><strong>Dòng Tiền P&L, Load Test & Golive:</strong> Tính giá thành, Executive BI Dashboard, Stress Test (k6: 1,000 CCU), Chạy thí điểm UAT & Golive.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SLIDE 6: MODULE QUẢN LÝ DỰ ÁN & CÔNG TRÌNH XÂY DỰNG
+         ======================================================== -->
+    <section class="slide" id="slide-6">
+        <div class="slide-content">
+            <div class="slide-header reveal">
+                <div class="badge amber">Construction Domain</div>
+                <h2>Phân Hệ Dự Án & Công Trình Xây Dựng</h2>
+                <p>Giám sát thi công từ tổng thể kế hoạch đến chi tiết hiện trường</p>
+            </div>
+            <div class="grid-3">
+                <div class="card reveal">
+                    <h3>📊 Bảng Dự Toán BOQ</h3>
+                    <ul>
+                        <li>Import trực tiếp từ file Excel/CAD kỹ sư thiết kế.</li>
+                        <li>Phân bổ ngân sách chi tiết cho từng hạng mục công việc.</li>
+                        <li>Cảnh báo tức thì khi chi phí thi công chạm ngưỡng vượt dự toán (Budget Overrun).</li>
+                    </ul>
+                </div>
+                <div class="card reveal">
+                    <h3>📅 WBS & Interactive Gantt</h3>
+                    <ul>
+                        <li>Cây phân rã công việc nhiều cấp (Gói thầu ➔ Hạng mục ➔ Tác vụ).</li>
+                        <li>Kéo thả quan hệ công việc (FS, SS, FF, SF) và đường găng (Critical Path).</li>
+                        <li>Cập nhật tiến độ % hoàn thành theo thời gian thực.</li>
+                    </ul>
+                </div>
+                <div class="card reveal">
+                    <h3>📱 Nhật Ký Hiện Trường (PWA)</h3>
+                    <ul>
+                        <li>Ghi nhận thời tiết, máy móc thiết bị, số lượng nhân công tại chỗ.</li>
+                        <li>Chụp ảnh tiến độ có đính kèm toạ độ GPS và Timestamp.</li>
+                        <li>Hoạt động mượt mà trên điện thoại di động dù mạng công trường yếu.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="grid-2 reveal" style="margin-top: 0.8rem;">
+                <div class="card" style="padding: 0.8rem;">
+                    <strong>📦 Quản Lý Cấp Phát Vật Tư Công Trường:</strong> Đề xuất ➔ Duyệt ➔ Cấp phát từ kho. Đối chiếu định mức vật tư vs số lượng xuất kho thực tế, kiểm soát hao hụt.
+                </div>
+                <div class="card" style="padding: 0.8rem;">
+                    <strong>📑 Nghiệm Thu & Thanh Quyết Toán:</strong> Lập hồ sơ nghiệm thu nội bộ và nghiệm thu A-B (Chủ đầu tư); đề nghị thanh toán theo giai đoạn hợp đồng và khấu trừ bảo hành.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SLIDE 7: MODULE SẢN XUẤT & NHÀ MÁY
+         ======================================================== -->
+    <section class="slide" id="slide-7">
+        <div class="slide-content">
+            <div class="slide-header reveal">
+                <div class="badge emerald">Manufacturing Domain</div>
+                <h2>Phân Hệ Điều Hành Sản Xuất & Nhà Máy</h2>
+                <p>Khép kín chuỗi giá trị: Định mức ➔ Hoạch định ➔ Thực thi lệnh ➔ Quản lý chất lượng</p>
+            </div>
+            <div class="grid-3">
+                <div class="card reveal">
+                    <h3>⚙️ BOM & Routing Chuyền</h3>
+                    <ul>
+                        <li>Định mức nguyên vật liệu BOM nhiều cấp (Cụm chi tiết ➔ Bán thành phẩm ➔ Chi tiết).</li>
+                        <li>Quy trình công nghệ (Routing) qua các trạm máy móc: Cắt, Hàn, Sơn, Lắp ráp, Đóng gói.</li>
+                        <li>Định mức thời gian chu kỳ chuẩn (Cycle Time).</li>
+                    </ul>
+                </div>
+                <div class="card reveal">
+                    <h3>📋 Kế Hoạch MRP & Lệnh SX</h3>
+                    <ul>
+                        <li>Thuật toán MRP tính toán nhu cầu mua nguyên vật liệu chính xác, tránh tồn kho thừa hoặc thiếu.</li>
+                        <li>Phát hành Lệnh sản xuất (Work Order) xuống từng tổ đội, máy móc cụ thể.</li>
+                        <li>Cập nhật sản lượng hoàn thành qua barcode/QR code tại xưởng.</li>
+                    </ul>
+                </div>
+                <div class="card reveal">
+                    <h3>🛡️ Kiểm Soát Chất Lượng (QC)</h3>
+                    <ul>
+                        <li><strong>IQC:</strong> Kiểm định chất lượng nguyên vật liệu nhập vào.</li>
+                        <li><strong>PQC:</strong> Kiểm soát thông số kỹ thuật tại chuyền.</li>
+                        <li><strong>FQC:</strong> Nghiệm thu thành phẩm trước khi nhập kho.</li>
+                        <li>Phân loại phế phẩm & chi phí sửa chữa (Rework).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card reveal" style="margin-top: 0.8rem; padding: 0.7rem 1.2rem; background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.3);">
+                <strong>🔧 Quản lý Bảo Trì Thiết Bị (TPM):</strong> Theo dõi lý lịch máy móc, cảnh báo bảo trì định kỳ, ghi nhận thời gian dừng máy sự cố (Downtime) để đo lường hiệu suất thiết bị toàn phần.
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SLIDE 8: QUY TRÌNH AGILE & KỶ LUẬT KỸ THUẬT (DOD)
+         ======================================================== -->
+    <section class="slide" id="slide-8">
+        <div class="slide-content">
+            <div class="slide-header reveal">
+                <div class="badge purple">Engineering Excellence</div>
+                <h2>Quy Trình Agile/Scrum & Kỷ Luật Kỹ Thuật</h2>
+                <p>Đảm bảo chất lượng bằng quy trình tự động hóa thay vì kiểm tra thủ công</p>
+            </div>
+            <div class="grid-2">
+                <div class="card reveal">
+                    <h3 style="color: var(--cyan);">🔄 Vòng Quay Agile (Sprint 2 Tuần)</h3>
+                    <ul>
+                        <li><strong>Planning & Grooming:</strong> Phân tích User Story, tiêu chí chấp nhận (AC) rõ ràng; chấm điểm Story Points (Planning Poker).</li>
+                        <li><strong>Daily Standup (15p):</strong> 3 câu hỏi nhanh, trọng tâm tháo gỡ khó khăn kỹ thuật cho dev.</li>
+                        <li><strong>Definition of Ready (DoR):</strong> Story phải có UI/Wireframe, API Contract và AC được thống nhất trước khi kéo vào Sprint.</li>
+                        <li><strong>Demo & Retrospective:</strong> Demo sản phẩm chạy thực tế cho PO/BA; rút kinh nghiệm cải tiến quy trình ngay sau mỗi Sprint.</li>
+                    </ul>
+                </div>
+                <div class="card reveal">
+                    <h3 style="color: var(--purple);">🛡️ Chuẩn Mực Pull Request & DoD</h3>
+                    <ul>
+                        <li><strong>Quy tắc PR < 400 dòng:</strong> Chia nhỏ PR để review sâu sắc, phát hiện lỗi kiến trúc sớm.</li>
+                        <li><strong>Bắt buộc 1 Approval:</strong> Tech Lead hoặc Senior duyệt trước khi merge vào nhánh <code>develop</code>.</li>
+                        <li><strong>Pipeline CI Tự Động:</strong> 100% Unit Tests pass, 0 lỗi Linter/Roslyn Analyzer, SonarQube không có Blocker/Critical bugs.</li>
+                        <li><strong>Definition of Done (DoD):</strong> Đã test tự động (Coverage > 70%), đã deploy lên Staging và QA nghiệm thu 100% kịch bản.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SLIDE 9: VẬN HÀNH KUBERNETES & TỐI ƯU CHI PHÍ CLOUD
+         ======================================================== -->
+    <section class="slide" id="slide-9">
+        <div class="slide-content">
+            <div class="slide-header reveal">
+                <div class="badge">Cloud & FinOps Strategy</div>
+                <h2>Vận Hành Kubernetes & Tối Ưu Chi Phí Cloud</h2>
+                <p>Chiến lược hạ tầng thông minh giúp tiết kiệm tối đa ngân sách công ty</p>
+            </div>
+            <div class="grid-2">
+                <div class="card reveal">
+                    <h3 style="color: var(--cyan);">💰 FinOps: Chiến Lược 2 Giai Đoạn</h3>
+                    <ul>
+                        <li><strong>Giai đoạn 1 (Tháng 1 – 5 - MVP):</strong>
+                            <br>• Không dùng Managed K8s đắt tiền trên AWS/Azure.
+                            <br>• Dùng 2–3 Cloud VPS cấu hình cao cài <strong>K3s / RKE2</strong>.
+                            <br>• Chi phí hạ tầng < <strong>$150 – $250 / tháng</strong> mà hiệu năng cực kỳ mạnh mẽ.
+                        </li>
+                        <li><strong>Giai đoạn 2 (Tháng 6 trở đi - Production):</strong>
+                            <br>• Chuyển sang Managed K8s (EKS/AKS) khi người dùng tăng cao.
+                            <br>• Cấu hình <strong>Spot / Preemptible Instances</strong> cho môi trường Dev/Staging (tiết kiệm 60–80% chi phí).
+                            <br>• Dùng <strong>MinIO S3</strong> trên Block Storage giá rẻ lưu trữ bản vẽ công trình thay vì Object Storage đắt tiền.
+                        </li>
+                    </ul>
+                </div>
+                <div class="card reveal">
+                    <h3 style="color: var(--amber);">📡 Giám Sát APM & Ứng Cứu Sự Cố</h3>
+                    <ul>
+                        <li><strong>Log Tập Trung (Seq / Loki):</strong> Serilog chuẩn cấu trúc JSON, truy vấn lỗi trong 3 giây.</li>
+                        <li><strong>Metrics & APM (OpenTelemetry):</strong> Đo thời gian phản hồi của từng câu truy vấn database và external API.</li>
+                        <li><strong>Prometheus & Grafana:</strong> Bảng điều khiển CPU, RAM, Network I/O và Pod Health theo thời gian thực.</li>
+                        <li><strong>Cảnh Báo Tự Động:</strong> Tích hợp Telegram/Slack Bot báo động tức thì khi HTTP 5xx > 2% hoặc RAM Pod vượt 85%.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SLIDE 10: KẾ HOẠCH HÀNH ĐỘNG 2 TUẦN ĐẦU TIÊN
+         ======================================================== -->
+    <section class="slide" id="slide-10">
+        <div class="slide-content">
+            <div class="slide-header reveal">
+                <div class="badge emerald">Action Plan</div>
+                <h2>Kế Hoạch Hành Động 2 Tuần Đầu Tiên</h2>
+                <p>Lộ trình tác chiến tức thì để đưa dự án từ con số 0 vào guồng quay chuyên nghiệp</p>
+            </div>
+            <div class="grid-2">
+                <div class="card reveal" style="border-top: 4px solid var(--cyan);">
+                    <h3 style="color: var(--cyan);">Tuần 1: Thiết Lập Móng & Khóa Scope</h3>
+                    <ul>
+                        <li><strong>Ngày 1 - 2:</strong> Họp chiến lược với PO/BA và Ban Lãnh đạo, chốt danh sách User Stories ưu tiên số 1 của Phase 1.</li>
+                        <li><strong>Ngày 3 - 4:</strong> Tech Lead khởi tạo Skeleton Solution (.NET 8/9 Clean Architecture + React Vite + TypeScript + Mantine UI).</li>
+                        <li><strong>Ngày 5:</strong> Dựng Docker Compose local (App + Postgres + Redis + RabbitMQ) và cấu hình CI/CD Pipeline trên GitHub/GitLab.</li>
+                    </ul>
+                </div>
+                <div class="card reveal" style="border-top: 4px solid var(--purple);">
+                    <h3 style="color: var(--purple);">Tuần 2: Kickoff Team & Chạy Sprint 1</h3>
+                    <ul>
+                        <li><strong>Ngày 6 - 7:</strong> Tổ chức Workshop kỹ thuật cho toàn team: Quán triệt Clean Architecture, Git Flow, tiêu chuẩn PR và DoD.</li>
+                        <li><strong>Ngày 8 - 9:</strong> Tech Lead hoàn thiện Base Entity, Dynamic Workflow Skeleton và Module IAM (Auth, RBAC).</li>
+                        <li><strong>Ngày 10:</strong> Họp Sprint 1 Planning: Phân công nhiệm vụ chi tiết trên bảng Jira cho từng dev để bắt đầu bứt tốc.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SLIDE 11: KẾT LUẬN & SẴN SÀNG THỰC THI
+         ======================================================== -->
+    <section class="slide" id="slide-11">
+        <div class="ambient-glow glow-1"></div>
+        <div class="ambient-glow glow-2"></div>
+        <div class="slide-content" style="text-align: center; align-items: center;">
+            <div class="badge emerald reveal">Ready for Execution</div>
+            <h2 class="reveal" style="font-size: var(--title-size); font-weight: 800; margin-bottom: 1rem;">
+                HỆ THỐNG VỮNG CHẮC — ĐỘI NGŨ TINH GỌN
+            </h2>
+            <p class="reveal" style="font-size: var(--subtitle-size); color: var(--text-secondary); max-width: 850px; margin-bottom: 2rem;">
+                Với kiến trúc Modular Monolith thực dụng, kỷ luật kỹ thuật nghiêm ngặt và 50% thời gian code trực tiếp của Tech Lead, dự án đảm bảo hoàn thành đúng hạn và sẵn sàng mở rộng quy mô lớn.
+            </p>
+            <div class="reveal" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button class="btn-nav" style="padding: 0.8rem 1.8rem; font-size: 0.95rem;" onclick="window.print()">
+                    🖨️ Xuất File PDF / Báo Cáo Ban Lãnh Đạo
+                </button>
+                <button class="btn-nav" style="padding: 0.8rem 1.8rem; font-size: 0.95rem;" onclick="navigator.clipboard.writeText(window.location.href); alert('Đã sao chép đường dẫn slide!')">
+                    🔗 Sao Chép Link Trình Chiếu
+                </button>
+            </div>
+            <p class="reveal" style="margin-top: 2rem; font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono);">
+                Created with precision by Antigravity IDE • 2026 Edition
+            </p>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SLIDE PRESENTATION CONTROLLER JS
+         ======================================================== -->
+    <script>
+        class PresentationController {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.totalSlides = this.slides.length;
+                this.currentIndex = 0;
+                this.isScrolling = false;
+
+                this.counterEl = document.getElementById('slideCounter');
+                this.progressBar = document.getElementById('progressBar');
+                this.prevBtn = document.getElementById('prevBtn');
+                this.nextBtn = document.getElementById('nextBtn');
+                this.fullscreenBtn = document.getElementById('fullscreenBtn');
+
+                this.init();
+            }
+
+            init() {
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupButtons();
+                this.updateUI();
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const index = Array.from(this.slides).indexOf(entry.target);
+                            if (index !== -1) {
+                                this.currentIndex = index;
+                                this.updateUI();
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                        e.preventDefault();
+                        this.goToSlide(this.currentIndex + 1);
+                    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                        e.preventDefault();
+                        this.goToSlide(this.currentIndex - 1);
+                    } else if (e.key === 'f' || e.key === 'F') {
+                        e.preventDefault();
+                        this.toggleFullscreen();
+                    } else if (e.key === 'p' || e.key === 'P') {
+                        e.preventDefault();
+                        window.print();
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.goToSlide(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.goToSlide(this.totalSlides - 1);
+                    }
+                });
+            }
+
+            setupButtons() {
+                this.prevBtn.addEventListener('click', () => this.goToSlide(this.currentIndex - 1));
+                this.nextBtn.addEventListener('click', () => this.goToSlide(this.currentIndex + 1));
+                this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+            }
+
+            goToSlide(index) {
+                if (index < 0 || index >= this.totalSlides || this.isScrolling) return;
+                this.isScrolling = true;
+                this.currentIndex = index;
+                this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                this.updateUI();
+                setTimeout(() => { this.isScrolling = false; }, 600);
+            }
+
+            updateUI() {
+                const currentFormatted = String(this.currentIndex + 1).padStart(2, '0');
+                const totalFormatted = String(this.totalSlides).padStart(2, '0');
+                this.counterEl.textContent = `${currentFormatted} / ${totalFormatted}`;
+
+                const progress = ((this.currentIndex + 1) / this.totalSlides) * 100;
+                this.progressBar.style.width = `${progress}%`;
+
+                this.prevBtn.style.opacity = this.currentIndex === 0 ? '0.4' : '1';
+                this.nextBtn.style.opacity = this.currentIndex === this.totalSlides - 1 ? '0.4' : '1';
+            }
+
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                } else {
+                    document.exitFullscreen().catch(() => {});
+                }
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            new PresentationController();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
+
+# Copy Solution & project files
+COPY ErpSystem.sln ./
+COPY src/BuildingBlocks/BuildingBlocks.Common/*.csproj ./src/BuildingBlocks/BuildingBlocks.Common/
+COPY src/Modules/Workflow/ErpSystem.Modules.Workflow/*.csproj ./src/Modules/Workflow/ErpSystem.Modules.Workflow/
+COPY src/Modules/Projects/ErpSystem.Modules.Projects/*.csproj ./src/Modules/Projects/ErpSystem.Modules.Projects/
+COPY src/Infrastructure/ErpSystem.Infrastructure/*.csproj ./src/Infrastructure/ErpSystem.Infrastructure/
+COPY src/Api/ErpSystem.Api/*.csproj ./src/Api/ErpSystem.Api/
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy full source and build
+COPY . .
+RUN dotnet publish src/Api/ErpSystem.Api/ErpSystem.Api.csproj -c Release -o /app/out /p:UseAppHost=false
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+EXPOSE 5000
+ENV ASPNETCORE_URLS=http://+:5000
+
+COPY --from=build /app/out .
+ENTRYPOINT ["dotnet", "ErpSystem.Api.dll"]

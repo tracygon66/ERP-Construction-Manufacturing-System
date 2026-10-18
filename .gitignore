@@ -1,0 +1,21 @@
+# .NET Core & Visual Studio
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.dotCover
+
+# Node & Frontend
+node_modules/
+dist/
+.vite/
+*.log
+
+# Environment & Secrets
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
