@@ -8,7 +8,7 @@ namespace BuildingBlocks.Common.Primitives;
 /// </summary>
 public abstract class BaseEntity<TKey>
 {
-    public TKey Id { get; protected set; } = default!;
+    public TKey Id { get; set; } = default!;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public Guid CreatedBy { get; set; }
