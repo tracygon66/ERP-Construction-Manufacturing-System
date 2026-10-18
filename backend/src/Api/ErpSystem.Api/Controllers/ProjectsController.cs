@@ -132,6 +132,26 @@ public class ProjectsController : ControllerBase
             WorkflowInstanceId = instance.Id
         });
     }
+
+    /// <summary>
+    /// Lấy danh sách các đầu việc bóc tách BOQ WBS [ERP-05]
+    /// </summary>
+    [HttpGet("{projectId:guid}/boqs/{boqId:guid}/items")]
+    public async Task<IActionResult> GetBOQItems(Guid projectId, Guid boqId, CancellationToken ct)
+    {
+        if (!_currentUserContext.CanAccessProject(projectId))
+        {
+            return Forbid("Bạn không có quyền truy cập dữ liệu dự án này.");
+        }
+
+        var items = await _dbContext.ProjectBOQItems
+            .AsNoTracking()
+            .Where(x => x.ProjectId == projectId && x.ProjectBOQId == boqId)
+            .OrderBy(x => x.SortOrder)
+            .ToListAsync(ct);
+
+        return Ok(items);
+    }
 }
 
 public record CreateBOQRequest(string BOQCode, string Name, decimal TotalEstimatedAmount);
