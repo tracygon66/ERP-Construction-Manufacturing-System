@@ -29,6 +29,7 @@ public class AppDbContext : DbContext
     // Projects Module DbSets
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<ProjectBOQ> ProjectBOQs => Set<ProjectBOQ>();
+    public DbSet<ProjectBOQItem> ProjectBOQItems => Set<ProjectBOQItem>();
     public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
 
     // Workflow Module DbSets
